@@ -2,6 +2,8 @@ import pyodbc
 import csv
 import urllib3
 
+FILENAMES = ["happiness-2015.csv", "happiness-2016.csv", "happiness-2017.csv", "happiness-2018.csv"]
+
 def is_table_exists(connection, table_name):
     try:
         with connection.cursor() as cursor:
@@ -18,10 +20,19 @@ def create_happiness_index(connection):
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE HappinessIndex (
-    id int IDENTITY(1,1),
-    year int NOT NULL,
-    happiness_index decimal(5,3) NOT NULL,
-    PRIMARY KEY (id) 
+    year INT NOT NULL,
+    country NVARCHAR(50) NOT NULL,
+    region NVARCHAR(50) NOT NULL,
+    rank INT NOT NULL,
+    standard_error DECIMAL(8,5) NOT NULL,
+    gdp_per_capita DECIMAL(8,5) NOT NULL,
+    family DECIMAL(8,5) NOT NULL,
+    life_expectancy DECIMAL(8,5) NOT NULL,
+    freedom DECIMAL(8,5) NOT NULL,
+    government_corruption DECIMAL(8,5) NOT NULL,
+    generosity DECIMAL(8,5) NOT NULL,
+    dystopia_residual DECIMAL(8,5) NOT NULL,
+    PRIMARY KEY (year, country) 
 )
             """
             cursor.execute(sql)
@@ -32,17 +43,31 @@ CREATE TABLE HappinessIndex (
 
 def populate_data(connection):
     try:
-        with connection.cursor() as cursor:
-            with open('happiness-index.csv') as csvfile:
-                reader = csv.reader(csvfile)
-                next(reader)
-                for row in reader:
-                    year = row[0]
-                    index = float(row[1])
-                    sql = f"INSERT INTO HappinessIndex (year, happiness_index) VALUES ({year}, {index})" 
-                    cursor.execute(sql)
-        
-        connection.commit()
+        for filename in FILENAMES:
+            with connection.cursor() as cursor:
+                with open(filename) as csvfile:
+                    reader = csv.reader(csvfile)
+                    next(reader)
+                    for row in reader:
+                        year = filename.split("-")[1].replace(".csv", "")
+                        country = row[0]
+                        region = row[1]
+                        rank = row[2]
+                        standard_error = row[3]
+                        gdp_per_capita = row[4]
+                        family = row[5]
+                        life_expectancy = row[6]
+                        freedom = row[7]
+                        government_corruption = row[8]
+                        generosity = row[9]
+                        dystopia_residual = row[10]
+                        sql = f"""
+INSERT INTO HappinessIndex 
+(year, country, region, rank, standard_error, gdp_per_capita, family, life_expectancy, freedom, government_corruption, generosity, dystopia_residual)
+VALUES 
+({year}, '{country}', '{region}', {rank}, {standard_error}, {gdp_per_capita}, {family}, {life_expectancy}, {freedom}, {government_corruption}, {generosity}, {dystopia_residual})""" 
+                        cursor.execute(sql)
+            connection.commit()    
     except Exception as ex:
         print(ex)
 
