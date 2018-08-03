@@ -73,15 +73,15 @@ VALUES
 
 def main():
     # Fill this with MS SQL Server address
-    server = '35.198.240.57'
-    database = 'KE5106'
-    username = 'admin'
-    password = '12345678!'
+    server = ''
+    database = ''
+    username = ''
+    password = ''
     # driver='/usr/local/lib/libmsodbcsql.13.dylib'
 
     # could be different (depends on OS)
     # Code example can be found here: https://docs.microsoft.com/en-us/sql/connect/python/python-driver-for-sql-server?view=sql-server-2017
-    driver='/usr/local/lib/libmsodbcsql.13.dylib'
+    driver='{ODBC Driver 13 for SQL Server}'
 
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 
