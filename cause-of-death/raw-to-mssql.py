@@ -70,45 +70,44 @@ VALUES
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
-                with open(filename) as csvfile:
-                    df = pd.read_csv(filename)
-                    df_transposed = df.set_index('Country').transpose().reset_index()
-                    df_transposed = df_transposed.applymap(lambda x: None if str(x) == "." else x)
-                    for _, row in df_transposed.iterrows():
-                        year = filename.split("-")[1].replace(".csv", "")
-                        country = row["index"]
-                        population = row[" Population ('000) (2) "]
-                        all_causes = row["All Causes"]
-                        nutritional_conditions = row["I. Communicable, maternal, perinatal and nutritional conditions"]
-                        infectious_diseases = row["A. Infectious and parasitic diseases"]
-                        respiratory_infectious = row["B. Respiratory Infectious "]
-                        maternal_conditions = row["C. Maternal conditions"]
-                        neonatal_conditions = row["D. Neonatal conditions"]
-                        nutritional_deficiencies = row["E. Nutritional deficiencies"]
-                        noncommunicable_diseases = row["II. Noncommunicable diseases"]
-                        malignant_neoplasms = row["A. Malignant neoplasms"]
-                        other_neoplasms = row["B. Other neoplasms"]
-                        diabetes_mellitus = row["C. Diabetes mellitus"]
-                        endocrine_blood_immune_disorders = row["D. Endocrine, blood, immune disorders"]
-                        mental_substance_use_disorders = row["E. Mental and substance use disorders"]
-                        neurological_conditions = row["F. Neurological conditions"]
-                        sense_organ_diseases = row["G. Sense organ diseases"]
-                        cardiovascular_diseases = row["H. Cardiovascular diseases"]
-                        respiratory_diseases = row["I. Respiratory diseases"]
-                        digestive_diseases = row["J. Digestive diseases"]
-                        genitourinary_diseases = row["K. Genitourinary diseases"]
-                        skin_diseases = row["L. Skin diseases"]
-                        musculoskeletal_diseases = row["M. Musculoskeletal diseases"]
-                        congenital_anomalies = row["N. Congenital anomalies"]
-                        oral_conditions = row["O. Oral conditions"]
-                        sudden_infant_death_syndrome = row["P. Sudden infant death syndrome"]
-                        injuries = row["III. Injuries"]
-                        unintentional_injuries = row["A. Unintentional injuries"]
-                        intentional_injuries = row["B. Intentional injuries"]
+                df = pd.read_csv(filename)
+                df_transposed = df.set_index('Country').transpose().reset_index()
+                df_transposed = df_transposed.applymap(lambda x: None if str(x) == "." else x)
+                for _, row in df_transposed.iterrows():
+                    year = filename.split("-")[1].replace(".csv", "")
+                    country = row["index"]
+                    population = row[" Population ('000) (2) "]
+                    all_causes = row["All Causes"]
+                    nutritional_conditions = row["I. Communicable, maternal, perinatal and nutritional conditions"]
+                    infectious_diseases = row["A. Infectious and parasitic diseases"]
+                    respiratory_infectious = row["B. Respiratory Infectious "]
+                    maternal_conditions = row["C. Maternal conditions"]
+                    neonatal_conditions = row["D. Neonatal conditions"]
+                    nutritional_deficiencies = row["E. Nutritional deficiencies"]
+                    noncommunicable_diseases = row["II. Noncommunicable diseases"]
+                    malignant_neoplasms = row["A. Malignant neoplasms"]
+                    other_neoplasms = row["B. Other neoplasms"]
+                    diabetes_mellitus = row["C. Diabetes mellitus"]
+                    endocrine_blood_immune_disorders = row["D. Endocrine, blood, immune disorders"]
+                    mental_substance_use_disorders = row["E. Mental and substance use disorders"]
+                    neurological_conditions = row["F. Neurological conditions"]
+                    sense_organ_diseases = row["G. Sense organ diseases"]
+                    cardiovascular_diseases = row["H. Cardiovascular diseases"]
+                    respiratory_diseases = row["I. Respiratory diseases"]
+                    digestive_diseases = row["J. Digestive diseases"]
+                    genitourinary_diseases = row["K. Genitourinary diseases"]
+                    skin_diseases = row["L. Skin diseases"]
+                    musculoskeletal_diseases = row["M. Musculoskeletal diseases"]
+                    congenital_anomalies = row["N. Congenital anomalies"]
+                    oral_conditions = row["O. Oral conditions"]
+                    sudden_infant_death_syndrome = row["P. Sudden infant death syndrome"]
+                    injuries = row["III. Injuries"]
+                    unintentional_injuries = row["A. Unintentional injuries"]
+                    intentional_injuries = row["B. Intentional injuries"]
 
-                        data = (year, country, population, all_causes, nutritional_conditions, infectious_diseases, respiratory_infectious, maternal_conditions, neonatal_conditions, nutritional_deficiencies, noncommunicable_diseases, malignant_neoplasms, other_neoplasms, diabetes_mellitus, endocrine_blood_immune_disorders, mental_substance_use_disorders, neurological_conditions, sense_organ_diseases, cardiovascular_diseases, respiratory_diseases, digestive_diseases, genitourinary_diseases, skin_diseases, musculoskeletal_diseases, congenital_anomalies, oral_conditions, sudden_infant_death_syndrome, injuries, unintentional_injuries, intentional_injuries)
+                    data = (year, country, population, all_causes, nutritional_conditions, infectious_diseases, respiratory_infectious, maternal_conditions, neonatal_conditions, nutritional_deficiencies, noncommunicable_diseases, malignant_neoplasms, other_neoplasms, diabetes_mellitus, endocrine_blood_immune_disorders, mental_substance_use_disorders, neurological_conditions, sense_organ_diseases, cardiovascular_diseases, respiratory_diseases, digestive_diseases, genitourinary_diseases, skin_diseases, musculoskeletal_diseases, congenital_anomalies, oral_conditions, sudden_infant_death_syndrome, injuries, unintentional_injuries, intentional_injuries)
 
-                        cursor.execute(sql, data)
+                    cursor.execute(sql, data)
             connection.commit()    
     except Exception as ex:
         print(ex)

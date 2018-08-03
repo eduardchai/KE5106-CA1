@@ -58,33 +58,32 @@ VALUES
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
-                with open(filename) as csvfile:
-                    df = pd.read_csv(filename)
-                    df_transposed = df.set_index('Variables').transpose().reset_index()
-                    df_transposed = df_transposed.applymap(lambda x: None if str(x) == "na" else x)
-                    for _, row in df_transposed.iterrows():
-                        year = row["index"]
-                        male_general = row["Male General Divorce Rate (Per 1,000 Married Resident Aged 20 Years & Over)"]
-                        male_20_24 = row["20-24 Years (Per 1,000 Married Resident Males)"]
-                        male_25_29 = row["25-29 Years (Per 1,000 Married Resident Males)"]
-                        male_30_34 = row["30-34 Years (Per 1,000 Married Resident Males)"]
-                        male_35_39 = row["35-39 Years (Per 1,000 Married Resident Males)"]
-                        male_40_44 = row["40-44 Years (Per 1,000 Married Resident Males)"]
-                        male_45_49 = row["45-49 Years (Per 1,000 Married Resident Males)"]
-                        male_50 = row["50 Years And Over (Per 1,000 Married Resident Males)"]
-                        female_general = row["Female General Divorce Rate (Per 1,000 Married Resident Aged 20 Years & Over)"]
-                        female_20_24 = row["20-24 Years (Per 1,000 Married Resident Females)"]
-                        female_25_29 = row["25-29 Years (Per 1,000 Married Resident Females)"]
-                        female_30_34 = row["30-34 Years (Per 1,000 Married Resident Females)"]
-                        female_35_39 = row["35-39 Years (Per 1,000 Married Resident Females)"]
-                        female_40_44 = row["40-44 Years (Per 1,000 Married Resident Females)"]
-                        female_45_49 = row["45-49 Years (Per 1,000 Married Resident Females)"]
-                        female_50 = row["50 Years And Over (Per 1,000 Married Resident Females)"]
-                        crude_divorce_rate = row["Crude Divorce Rate (Per 1,000 Residents)"]
+                df = pd.read_csv(filename)
+                df_transposed = df.set_index('Variables').transpose().reset_index()
+                df_transposed = df_transposed.applymap(lambda x: None if str(x) == "na" else x)
+                for _, row in df_transposed.iterrows():
+                    year = row["index"]
+                    male_general = row["Male General Divorce Rate (Per 1,000 Married Resident Aged 20 Years & Over)"]
+                    male_20_24 = row["20-24 Years (Per 1,000 Married Resident Males)"]
+                    male_25_29 = row["25-29 Years (Per 1,000 Married Resident Males)"]
+                    male_30_34 = row["30-34 Years (Per 1,000 Married Resident Males)"]
+                    male_35_39 = row["35-39 Years (Per 1,000 Married Resident Males)"]
+                    male_40_44 = row["40-44 Years (Per 1,000 Married Resident Males)"]
+                    male_45_49 = row["45-49 Years (Per 1,000 Married Resident Males)"]
+                    male_50 = row["50 Years And Over (Per 1,000 Married Resident Males)"]
+                    female_general = row["Female General Divorce Rate (Per 1,000 Married Resident Aged 20 Years & Over)"]
+                    female_20_24 = row["20-24 Years (Per 1,000 Married Resident Females)"]
+                    female_25_29 = row["25-29 Years (Per 1,000 Married Resident Females)"]
+                    female_30_34 = row["30-34 Years (Per 1,000 Married Resident Females)"]
+                    female_35_39 = row["35-39 Years (Per 1,000 Married Resident Females)"]
+                    female_40_44 = row["40-44 Years (Per 1,000 Married Resident Females)"]
+                    female_45_49 = row["45-49 Years (Per 1,000 Married Resident Females)"]
+                    female_50 = row["50 Years And Over (Per 1,000 Married Resident Females)"]
+                    crude_divorce_rate = row["Crude Divorce Rate (Per 1,000 Residents)"]
 
-                        data = (year, male_general, male_20_24, male_25_29, male_30_34, male_35_39, male_40_44, male_45_49, male_50, female_general, female_20_24, female_25_29, female_30_34, female_35_39, female_40_44, female_45_49, female_50, crude_divorce_rate)
+                    data = (year, male_general, male_20_24, male_25_29, male_30_34, male_35_39, male_40_44, male_45_49, male_50, female_general, female_20_24, female_25_29, female_30_34, female_35_39, female_40_44, female_45_49, female_50, crude_divorce_rate)
 
-                        cursor.execute(sql, data)
+                    cursor.execute(sql, data)
             connection.commit()    
     except Exception as ex:
         print(ex)
