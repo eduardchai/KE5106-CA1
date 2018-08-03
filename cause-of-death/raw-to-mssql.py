@@ -74,7 +74,6 @@ VALUES
                     df = pd.read_csv(filename)
                     df_transposed = df.set_index('Country').transpose().reset_index()
                     df_transposed = df_transposed.applymap(lambda x: None if str(x) == "." else x)
-                    df_transposed.to_csv("test.csv", index=False)
                     for _, row in df_transposed.iterrows():
                         year = filename.split("-")[1].replace(".csv", "")
                         country = row["index"]
@@ -116,15 +115,15 @@ VALUES
 
 def main():
     # Fill this with MS SQL Server address
-    server = '35.198.240.57'
-    database = 'KE5106'
-    username = 'admin'
-    password = '12345678!'
+    server = ''
+    database = ''
+    username = ''
+    password = ''
     # driver='/usr/local/lib/libmsodbcsql.13.dylib'
 
     # could be different (depends on OS)
     # Code example can be found here: https://docs.microsoft.com/en-us/sql/connect/python/python-driver-for-sql-server?view=sql-server-2017
-    driver='/usr/local/lib/libmsodbcsql.13.dylib'
+    driver='{ODBC Driver 13 for SQL Server}'
 
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 

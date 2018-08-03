@@ -22,23 +22,23 @@ def create_table(connection):
             sql = """
 CREATE TABLE DivorceRate (
     year INT NOT NULL,
-    male_general DECIMAL(3,1) NOT NULL,
-    male_20_24 DECIMAL(3,1) NOT NULL,
-    male_25_29 DECIMAL(3,1) NOT NULL,
-    male_30_34 DECIMAL(3,1) NOT NULL,
-    male_35_39 DECIMAL(3,1) NOT NULL,
-    male_40_44 DECIMAL(3,1) NOT NULL,
-    male_45_49 DECIMAL(3,1) NOT NULL,
-    male_50 DECIMAL(3,1) NOT NULL,
-    female_general DECIMAL(3,1) NOT NULL,
-    female_20_24 DECIMAL(3,1) NOT NULL,
-    female_25_29 DECIMAL(3,1) NOT NULL,
-    female_30_34 DECIMAL(3,1) NOT NULL,
-    female_35_39 DECIMAL(3,1) NOT NULL,
-    female_40_44 DECIMAL(3,1) NOT NULL,
-    female_45_49 DECIMAL(3,1) NOT NULL,
-    female_50 DECIMAL(3,1) NOT NULL,
-    crude_divorce_rate DECIMAL(3,1) NOT NULL,
+    male_general DECIMAL(3,1),
+    male_20_24 DECIMAL(3,1),
+    male_25_29 DECIMAL(3,1),
+    male_30_34 DECIMAL(3,1),
+    male_35_39 DECIMAL(3,1),
+    male_40_44 DECIMAL(3,1),
+    male_45_49 DECIMAL(3,1),
+    male_50 DECIMAL(3,1),
+    female_general DECIMAL(3,1),
+    female_20_24 DECIMAL(3,1),
+    female_25_29 DECIMAL(3,1),
+    female_30_34 DECIMAL(3,1),
+    female_35_39 DECIMAL(3,1),
+    female_40_44 DECIMAL(3,1),
+    female_45_49 DECIMAL(3,1),
+    female_50 DECIMAL(3,1),
+    crude_divorce_rate DECIMAL(3,1),
     PRIMARY KEY (year) 
 )
             """
@@ -61,8 +61,7 @@ VALUES
                 with open(filename) as csvfile:
                     df = pd.read_csv(filename)
                     df_transposed = df.set_index('Variables').transpose().reset_index()
-                    df_transposed = df_transposed.applymap(lambda x: None if str(x) == "." else x)
-                    df_transposed.to_csv("test.csv", index=False)
+                    df_transposed = df_transposed.applymap(lambda x: None if str(x) == "na" else x)
                     for _, row in df_transposed.iterrows():
                         year = row["index"]
                         male_general = row["Male General Divorce Rate (Per 1,000 Married Resident Aged 20 Years & Over)"]
