@@ -1,4 +1,4 @@
-Country,Region,Happiness.Rank,Happiness.Score,Whisker.high,Whisker.low,Economy..GDP.per.Capita.,Family,Health..Life.Expectancy.,Freedom,Generosity,Trust..Government.Corruption.,Dystopia.Residual
+Country,Region,Happiness Rank,Happiness Score,Whisker.high,Whisker.low,Economy (GDP per Capita),Family,Health (Life Expectancy),Freedom,Generosity,Trust (Government Corruption),Dystopia Residual
 Norway,Western Europe,1,7.537000179,7.594444821,7.479555538,1.616463184,1.53352356,0.796666503,0.635422587,0.362012237,0.315963835,2.277026653
 Denmark,Western Europe,2,7.521999836,7.581728065,7.462271607,1.482383013,1.551121593,0.792565525,0.626006722,0.355280489,0.400770068,2.313707352
 Iceland,Western Europe,3,7.504000187,7.622030473,7.385969901,1.48063302,1.610574007,0.833552122,0.627162635,0.475540221,0.153526559,2.322715282
