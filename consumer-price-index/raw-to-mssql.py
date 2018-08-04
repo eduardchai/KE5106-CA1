@@ -4,7 +4,7 @@ import urllib3
 import pandas as pd
 import math
 
-FILENAMES = ["GDPpercapita_constant2010USD.csv"]
+FILENAMES = ["consumer-price-index-base-year-2014-100-annual.csv"]
 
 def is_table_exists(connection, table_name):
     try:
@@ -17,29 +17,29 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
-def get_country(connection):
-    country = {}
+def get_level(connection):
+    level = {}
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT id, name FROM Country"
+            sql = "SELECT id, description FROM ConsumerPriceIndexLevel"
             cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:
-                country[row[1]] = row[0]
+                level[row[1]] = row[0]
     except Exception as ex:
         print(ex)
 
-    return country
+    return level
 
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
-CREATE TABLE GDP (
+CREATE TABLE ConsumerPriceIndex (
     year INT NOT NULL,
-    country_id INT NOT NULL,
-    gdp_value DECIMAL(15,5),
-    PRIMARY KEY (year, country_id) 
+    level_id INT NOT NULL,
+    value DECIMAL(8,3),
+    PRIMARY KEY (year, level_id) 
 )
             """
             cursor.execute(sql)
@@ -50,29 +50,26 @@ CREATE TABLE GDP (
 
 def populate_data(connection):
     try:
-        country_dict = get_country(connection)
+        level_dict = get_level(connection)
         sql = """
-INSERT INTO GDP 
-(year, country_id, gdp_value)
+INSERT INTO ConsumerPriceIndex 
+(year, level_id, value)
 VALUES 
 (?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
                 df = pd.read_csv(filename)
-                df = df.applymap(lambda x: None if x == ".." else x)
-                headers = list(df.columns.values)
-
-                years = headers[2:]
+                df = df.applymap(lambda x: None if x == "na" else x)
                 for _, row in df.iterrows():
-                    country = row['Country Name']
-                    if country in country_dict:
-                        country_id = country_dict[country]
-                        for year in years:
-                            value = row[year]
-                            data = (year, country_id, value)
-                            cursor.execute(sql, data)
+                    year = row["year"]
+                    level = row["level_1"]
+                    level_id = level_dict[level]
+                    value = row["value"]
 
+                    data = (year, level_id, value)
+
+                    cursor.execute(sql, data)
             connection.commit()    
     except Exception as ex:
         print(ex)
@@ -91,7 +88,7 @@ def main():
 
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 
-    if not is_table_exists(connection, "GDP"):
+    if not is_table_exists(connection, "ConsumerPriceIndex"):
         create_table(connection)
 
     populate_data(connection)
