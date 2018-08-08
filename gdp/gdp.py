@@ -2,8 +2,9 @@ import pyodbc
 import csv
 import urllib3
 import pandas as pd
+import math
 
-FILENAMES = ["country.csv"]
+FILENAMES = ["GDPpercapita_constant2010USD.csv"]
 
 def is_table_exists(connection, table_name):
     try:
@@ -16,29 +17,29 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
-def get_region(connection):
-    region = {}
+def get_country(connection):
+    country = {}
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT id, name FROM CountryRegion"
+            sql = "SELECT id, name FROM Country"
             cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:
-                region[row[1]] = row[0]
+                country[row[1]] = row[0]
     except Exception as ex:
         print(ex)
 
-    return region
+    return country
 
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
-CREATE TABLE Country (
-    id INT IDENTITY(1,1),
-    name NVARCHAR(100) NOT NULL,
-    region INT NOT NULL,
-    PRIMARY KEY (id) 
+CREATE TABLE GDP (
+    year INT NOT NULL,
+    country_id INT NOT NULL,
+    gdp_value DECIMAL(15,5),
+    PRIMARY KEY (year, country_id) 
 )
             """
             cursor.execute(sql)
@@ -49,32 +50,38 @@ CREATE TABLE Country (
 
 def populate_data(connection):
     try:
-        region_dict = get_region(connection)
+        country_dict = get_country(connection)
         sql = """
-INSERT INTO Country 
-(name, region)
+INSERT INTO GDP 
+(year, country_id, gdp_value)
 VALUES 
-(?,?)"""
+(?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
-                df = pd.read_csv("country/"+filename)
-                for _, row in df.iterrows():
-                    name = row["country"]
-                    region = row["region"]
-                    region_id = region_dict[region]
-                    data = (name,region_id)
+                df = pd.read_csv("gdp/"+filename)
+                df = df.applymap(lambda x: None if x == ".." else x)
+                headers = list(df.columns.values)
 
-                    cursor.execute(sql, data)
+                years = headers[2:]
+                for _, row in df.iterrows():
+                    country = row['Country Name']
+                    if country in country_dict:
+                        country_id = country_dict[country]
+                        for year in years:
+                            value = row[year]
+                            data = (year, country_id, value)
+                            cursor.execute(sql, data)
+
             connection.commit()    
     except Exception:
         raise
 
 def main(server, database, username, password, driver):
-    print("Loading data into Country table")
+    print("Loading data into GDP table")
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 
-    if not is_table_exists(connection, "Country"):
+    if not is_table_exists(connection, "GDP"):
         create_table(connection)
 
     try:

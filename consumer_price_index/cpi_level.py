@@ -2,8 +2,9 @@ import pyodbc
 import csv
 import urllib3
 import pandas as pd
+import math
 
-FILENAMES = ["region.csv"]
+FILENAMES = ["cpi-level.csv"]
 
 def is_table_exists(connection, table_name):
     try:
@@ -20,9 +21,9 @@ def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
-CREATE TABLE CountryRegion (
+CREATE TABLE ConsumerPriceIndexLevel (
     id INT IDENTITY(1,1),
-    name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(100) NOT NULL,
     PRIMARY KEY (id) 
 )
             """
@@ -35,17 +36,18 @@ CREATE TABLE CountryRegion (
 def populate_data(connection):
     try:
         sql = """
-INSERT INTO CountryRegion 
-(name)
+INSERT INTO ConsumerPriceIndexLevel 
+(description)
 VALUES 
 (?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
-                df = pd.read_csv("country/"+filename)
+                df = pd.read_csv("consumer_price_index/" + filename)
                 for _, row in df.iterrows():
-                    name = row["name"]
-                    data = (name)
+                    desc = row["cpi_level"]
+
+                    data = (desc)
 
                     cursor.execute(sql, data)
             connection.commit()    
@@ -53,10 +55,10 @@ VALUES
         raise
 
 def main(server, database, username, password, driver):
-    print("Loading data into CountryRegion table")
+    print("Loading data into ConsumerPriceIndexLevel table")
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 
-    if not is_table_exists(connection, "CountryRegion"):
+    if not is_table_exists(connection, "ConsumerPriceIndexLevel"):
         create_table(connection)
 
     try:
