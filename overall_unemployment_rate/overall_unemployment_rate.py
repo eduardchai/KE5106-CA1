@@ -3,7 +3,7 @@ import csv
 import urllib3
 import pandas as pd
 
-FILENAMES = ["region.csv"]
+FILENAMES = ["overall-unemployment-rate-annual.csv"]
 
 def is_table_exists(connection, table_name):
     try:
@@ -20,10 +20,10 @@ def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
-CREATE TABLE CountryRegion (
-    id INT IDENTITY(1,1),
-    name NVARCHAR(100) NOT NULL,
-    PRIMARY KEY (id) 
+CREATE TABLE OverallUnemploymentRate (
+    year INT NOT NULL,
+    unemployment_rate DECIMAL(3,2),
+    PRIMARY KEY (year) 
 )
             """
             cursor.execute(sql)
@@ -35,17 +35,19 @@ CREATE TABLE CountryRegion (
 def populate_data(connection):
     try:
         sql = """
-INSERT INTO CountryRegion 
-(name)
+INSERT INTO OverallUnemploymentRate 
+(year, unemployment_rate)
 VALUES 
-(?)"""
+(?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
-                df = pd.read_csv("country/"+filename)
+                df = pd.read_csv("overall_unemployment_rate/"+filename)
                 for _, row in df.iterrows():
-                    name = row["name"]
-                    data = (name)
+                    year = row["year"]
+                    unemployment_rate = row["unemployment_rate"]
+
+                    data = (year, unemployment_rate)
 
                     cursor.execute(sql, data)
             connection.commit()    
@@ -53,10 +55,10 @@ VALUES
         raise
 
 def main(server, database, username, password, driver):
-    print("Loading data into CountryRegion table")
+    print("Loading data into OverallUnemploymentRate table")
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 
-    if not is_table_exists(connection, "CountryRegion"):
+    if not is_table_exists(connection, "OverallUnemploymentRate"):
         create_table(connection)
 
     try:

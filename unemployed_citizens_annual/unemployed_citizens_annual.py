@@ -3,7 +3,7 @@ import csv
 import urllib3
 import pandas as pd
 
-FILENAMES = ["region.csv"]
+FILENAMES = ["number-of-unemployed-citizens-annual.csv"]
 
 def is_table_exists(connection, table_name):
     try:
@@ -20,10 +20,10 @@ def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
-CREATE TABLE CountryRegion (
-    id INT IDENTITY(1,1),
-    name NVARCHAR(100) NOT NULL,
-    PRIMARY KEY (id) 
+CREATE TABLE UnemployedCitizens (
+    year INT NOT NULL,
+    unemployed INT,
+    PRIMARY KEY (year) 
 )
             """
             cursor.execute(sql)
@@ -35,28 +35,30 @@ CREATE TABLE CountryRegion (
 def populate_data(connection):
     try:
         sql = """
-INSERT INTO CountryRegion 
-(name)
+INSERT INTO UnemployedCitizens 
+(year, unemployed)
 VALUES 
-(?)"""
+(?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
-                df = pd.read_csv("country/"+filename)
+                df = pd.read_csv("unemployed_citizens_annual/"+filename)
                 for _, row in df.iterrows():
-                    name = row["name"]
-                    data = (name)
+                    year = row["year"]
+                    unemployed = row["unemployed"]
+
+                    data = (year, unemployed)
 
                     cursor.execute(sql, data)
             connection.commit()    
-    except Exception:
-        raise
+    except Exception as ex:
+        print(ex)
 
 def main(server, database, username, password, driver):
-    print("Loading data into CountryRegion table")
+    print("Loading data into UnemployedCitizens table")
     connection = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+username+';PWD='+password)
 
-    if not is_table_exists(connection, "CountryRegion"):
+    if not is_table_exists(connection, "UnemployedCitizens"):
         create_table(connection)
 
     try:
