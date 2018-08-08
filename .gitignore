@@ -1,3 +1,6 @@
 .DS_Store
 raw
 raw/*
+__pycache__
+*/__pycache__
+__pycache__/*
