@@ -28,5 +28,6 @@ password = ''
 ```
 3. Run the script
 ```
-python happiness-index/raw-to-mssql.py
+python main-raw-to-sql.py
+python main-sql-to-bq.py
 ```
