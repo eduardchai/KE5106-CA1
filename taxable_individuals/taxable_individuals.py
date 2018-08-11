@@ -16,12 +16,27 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE TaxableIndividuals (
     year INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     income_group NVARCHAR(50) NOT NULL,
     resident_type NVARCHAR(50) NOT NULL,
     number_of_taxpayers INT,
@@ -39,11 +54,12 @@ CREATE TABLE TaxableIndividuals (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         sql = """
 INSERT INTO TaxableIndividuals 
-(year,income_group,resident_type,number_of_taxpayers,assessable_income,chargeable_income,net_tax_assessed)
+(year,country_id,income_group,resident_type,number_of_taxpayers,assessable_income,chargeable_income,net_tax_assessed)
 VALUES 
-(?,?,?,?,?,?,?)"""
+(?,?,?,?,?,?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
@@ -51,6 +67,7 @@ VALUES
                 df = df.applymap(lambda x: None if x == "na" else x)
                 for _, row in df.iterrows():
                     year = row["year_of_assessment"]
+                    country_id = country_dict["Singapore"]
                     income_group = row["assessed_income_group"]
                     resident_type = row["resident_type"]
                     number_of_taxpayers = row["number_of_taxpayers"]
@@ -58,7 +75,7 @@ VALUES
                     chargeable_income = row["chargeable_income"]
                     net_tax_assessed = row["net_tax_assessed"]
 
-                    data = (year,income_group,resident_type,number_of_taxpayers,assessable_income,chargeable_income,net_tax_assessed)
+                    data = (year,country_id,income_group,resident_type,number_of_taxpayers,assessable_income,chargeable_income,net_tax_assessed)
                     
                     cursor.execute(sql, data)
             connection.commit()    

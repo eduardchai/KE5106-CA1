@@ -17,12 +17,27 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE MarriageRate (
     year INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     male_general DECIMAL(8,2),
     male_15_19 DECIMAL(8,2),
     male_20_24 DECIMAL(8,2),
@@ -59,11 +74,12 @@ CREATE TABLE MarriageRate (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         sql = """
 INSERT INTO MarriageRate 
-(year, male_general, male_15_19, male_20_24, male_25_29, male_30_34, male_35_39, male_40_44, male_45_49, male_50_54, male_55_59, male_60_64, male_65, female_general, female_15_19, female_20_24, female_25_29, female_30_34, female_35_39, female_40_44, female_45_49, female_50_54, female_55_59, female_60_64, female_65, crude_marriage_rate)
+(year, country_id, male_general, male_15_19, male_20_24, male_25_29, male_30_34, male_35_39, male_40_44, male_45_49, male_50_54, male_55_59, male_60_64, male_65, female_general, female_15_19, female_20_24, female_25_29, female_30_34, female_35_39, female_40_44, female_45_49, female_50_54, female_55_59, female_60_64, female_65, crude_marriage_rate)
 VALUES 
-(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
@@ -72,6 +88,7 @@ VALUES
                 df_transposed = df_transposed.applymap(lambda x: None if x == "na" else x)
                 for _, row in df_transposed.iterrows():
                     year = row["index"]
+                    country_id = country_dict["Singapore"]
                     male_general = row["Male General Marriage Rate (Per 1,000 Unmarried Resident Males 15-49)"]
                     male_15_19 = row["15-19 Years (Per 1,000 Unmarried Resident Males)"]
                     male_20_24 = row["20-24 Years (Per 1,000 Unmarried Resident Males)"]
@@ -100,7 +117,7 @@ VALUES
                     female_65 = None if math.isnan(female_65) else female_65
                     crude_marriage_rate = row["Crude Marriage Rate (Per 1,000 Residents)"]
 
-                    data = (year, male_general, male_15_19, male_20_24, male_25_29, male_30_34, male_35_39, male_40_44, male_45_49, male_50_54, male_55_59, male_60_64, male_65, female_general, female_15_19, female_20_24, female_25_29, female_30_34, female_35_39, female_40_44, female_45_49, female_50_54, female_55_59, female_60_64, female_65, crude_marriage_rate)
+                    data = (year, country_id, male_general, male_15_19, male_20_24, male_25_29, male_30_34, male_35_39, male_40_44, male_45_49, male_50_54, male_55_59, male_60_64, male_65, female_general, female_15_19, female_20_24, female_25_29, female_30_34, female_35_39, female_40_44, female_45_49, female_50_54, female_55_59, female_60_64, female_65, crude_marriage_rate)
 
                     cursor.execute(sql, data)
             connection.commit()    

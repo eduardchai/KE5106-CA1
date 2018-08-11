@@ -17,12 +17,27 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE Population (
     year INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     total_residents INT,
     PRIMARY KEY (year) 
 )
@@ -35,11 +50,12 @@ CREATE TABLE Population (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         sql = """
 INSERT INTO Population 
-(year, total_residents)
+(year, country_id, total_residents)
 VALUES 
-(?,?)"""
+(?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
@@ -48,8 +64,9 @@ VALUES
                 # print(df_transposed)
                 for _, row in df_transposed.iterrows():
                     year = row[0]
+                    country_id = country_dict["Singapore"]
                     total_residents = row["Total Residents"].replace(",","")
-                    data = (year, total_residents)
+                    data = (year, country_id, total_residents)
                     cursor.execute(sql, data)
             connection.commit()    
     except Exception:

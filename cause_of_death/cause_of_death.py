@@ -36,7 +36,7 @@ def create_table(connection):
             sql = """
 CREATE TABLE CauseOfDeath (
     year INT NOT NULL,
-    country_id INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     population INT NOT NULL,
     all_causes DECIMAL(8,2),
     nutritional_conditions DECIMAL(8,2),

@@ -17,12 +17,27 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE MaritalStatus (
     year INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     total INT,
     total_single INT,
     total_married INT,
@@ -49,11 +64,12 @@ CREATE TABLE MaritalStatus (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         sql = """
 INSERT INTO MaritalStatus 
-(year,total,total_single,total_married,total_widowed,total_divorced_separated,male,male_single,male_married,male_widowed,male_divorced_separated,female,female_single,female_married,female_widowed,female_divorced_separated)
+(year,country_id,total,total_single,total_married,total_widowed,total_divorced_separated,male,male_single,male_married,male_widowed,male_divorced_separated,female,female_single,female_married,female_widowed,female_divorced_separated)
 VALUES 
-(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
@@ -62,6 +78,7 @@ VALUES
                 df_transposed = df_transposed.applymap(lambda x: None if x == "na" else x)
                 for _, row in df_transposed.iterrows():
                     year = row["index"]
+                    country_id = country_dict["Singapore"]
                     total = row[1].replace(",", "")
                     total_single = row[2].replace(",", "")
                     total_married = row[3].replace(",", "")
@@ -78,7 +95,7 @@ VALUES
                     female_widowed = row[14].replace(",", "")
                     female_divorced_separated = row[15].replace(",", "")
 
-                    data = (year,total,total_single,total_married,total_widowed,total_divorced_separated,male,male_single,male_married,male_widowed,male_divorced_separated,female,female_single,female_married,female_widowed,female_divorced_separated)
+                    data = (year,country_id,total,total_single,total_married,total_widowed,total_divorced_separated,male,male_single,male_married,male_widowed,male_divorced_separated,female,female_single,female_married,female_widowed,female_divorced_separated)
 
                     cursor.execute(sql, data)
             connection.commit()    

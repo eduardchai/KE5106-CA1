@@ -37,7 +37,7 @@ def create_table(connection):
             sql = """
 CREATE TABLE GDP (
     year INT NOT NULL,
-    country_id INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     gdp_value DECIMAL(15,5),
     PRIMARY KEY (year, country_id) 
 )

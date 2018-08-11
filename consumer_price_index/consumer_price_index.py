@@ -31,13 +31,28 @@ def get_level(connection):
 
     return level
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE ConsumerPriceIndex (
     year INT NOT NULL,
-    level_id INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
+    level_id INT NOT NULL FOREIGN KEY REFERENCES ConsumerPriceIndexLevel(id),
     value DECIMAL(8,3),
     PRIMARY KEY (year, level_id) 
 )
@@ -50,12 +65,13 @@ CREATE TABLE ConsumerPriceIndex (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         level_dict = get_level(connection)
         sql = """
 INSERT INTO ConsumerPriceIndex 
-(year, level_id, value)
+(year, country_id, level_id, value)
 VALUES 
-(?,?,?)"""
+(?,?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
@@ -63,11 +79,12 @@ VALUES
                 df = df.applymap(lambda x: None if x == "na" else x)
                 for _, row in df.iterrows():
                     year = row["year"]
+                    country_id = country_dict["Singapore"]
                     level = row["level_1"]
                     level_id = level_dict[level]
                     value = row["value"]
 
-                    data = (year, level_id, value)
+                    data = (year, country_id, level_id, value)
 
                     cursor.execute(sql, data)
             connection.commit()    

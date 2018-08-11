@@ -16,12 +16,27 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE OverallUnemploymentRate (
     year INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     unemployment_rate DECIMAL(3,2),
     PRIMARY KEY (year) 
 )
@@ -34,20 +49,22 @@ CREATE TABLE OverallUnemploymentRate (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         sql = """
 INSERT INTO OverallUnemploymentRate 
-(year, unemployment_rate)
+(year, country_id, unemployment_rate)
 VALUES 
-(?,?)"""
+(?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
                 df = pd.read_csv("overall_unemployment_rate/"+filename)
                 for _, row in df.iterrows():
                     year = row["year"]
+                    country_id = country_dict["Singapore"]
                     unemployment_rate = row["unemployment_rate"]
 
-                    data = (year, unemployment_rate)
+                    data = (year, country_id, unemployment_rate)
 
                     cursor.execute(sql, data)
             connection.commit()    

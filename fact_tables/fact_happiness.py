@@ -25,7 +25,7 @@ SELECT
 	H.dystopia_residual
 FROM HappinessIndex H
 LEFT JOIN Country C ON H.country_id = C.id
-LEFT JOIN CountryRegion CR ON C.region = CR.id
+LEFT JOIN CountryRegion CR ON C.region_id = CR.id
             """
             cursor.execute(sql)
             rows = cursor.fetchall()

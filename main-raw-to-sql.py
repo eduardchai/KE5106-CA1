@@ -25,11 +25,11 @@ if __name__ == "__main__":
     driver='{ODBC Driver 13 for SQL Server}' # For Windows
     # driver='/usr/local/lib/libmsodbcsql.13.dylib' # For MacOS
 
-    cause_of_death.main(server, database, username, password, driver)
-    cpi_level.main(server, database, username, password, driver)
-    consumer_price_index.main(server, database, username, password, driver)
     region.main(server, database, username, password, driver)
     country.main(server, database, username, password, driver)
+    cpi_level.main(server, database, username, password, driver)
+    consumer_price_index.main(server, database, username, password, driver)
+    cause_of_death.main(server, database, username, password, driver)
     divorce_rate.main(server, database, username, password, driver)
     foreign_workforce.main(server, database, username, password, driver)
     gdp.main(server, database, username, password, driver)

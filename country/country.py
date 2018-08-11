@@ -37,8 +37,8 @@ def create_table(connection):
 CREATE TABLE Country (
     id INT IDENTITY(1,1),
     name NVARCHAR(100) NOT NULL,
-    region INT NOT NULL,
-    PRIMARY KEY (id) 
+    region_id INT NOT NULL FOREIGN KEY REFERENCES CountryRegion(id),
+    PRIMARY KEY (id)
 )
             """
             cursor.execute(sql)
@@ -52,7 +52,7 @@ def populate_data(connection):
         region_dict = get_region(connection)
         sql = """
 INSERT INTO Country 
-(name, region)
+(name, region_id)
 VALUES 
 (?,?)"""
 

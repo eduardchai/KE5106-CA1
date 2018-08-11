@@ -17,12 +17,27 @@ def is_table_exists(connection, table_name):
     except Exception as ex:
         print(ex)
 
+def get_country(connection):
+    country = {}
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT id, name FROM Country"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                country[row[1]] = row[0]
+    except Exception as ex:
+        print(ex)
+
+    return country
+
 def create_table(connection):
     try:
         with connection.cursor() as cursor:
             sql = """
 CREATE TABLE ForeignWorkforce (
     year INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     employment_pass INT,
     s_pass INT,
     work_permit_total INT,
@@ -43,11 +58,12 @@ CREATE TABLE ForeignWorkforce (
 
 def populate_data(connection):
     try:
+        country_dict = get_country(connection)
         sql = """
 INSERT INTO ForeignWorkforce 
-(year,employment_pass,s_pass,work_permit_total,work_permit_fdw,work_permit_construction,other_passes,total_workforce,total_workforce_exc_fdw,total_workforce_exc_fdw_construction)
+(year,country_id,employment_pass,s_pass,work_permit_total,work_permit_fdw,work_permit_construction,other_passes,total_workforce,total_workforce_exc_fdw,total_workforce_exc_fdw_construction)
 VALUES 
-(?,?,?,?,?,?,?,?,?,?)"""
+(?,?,?,?,?,?,?,?,?,?,?)"""
 
         for filename in FILENAMES:
             with connection.cursor() as cursor:
@@ -56,6 +72,7 @@ VALUES
                 df_transposed = df_transposed.applymap(lambda x: None if x == "na" else x)
                 for _, row in df_transposed.iterrows():
                     year = int(row["index"].split("-")[1]) + 2000
+                    country_id = country_dict["Singapore"]
                     employment_pass = row["Employment Pass (EP)"].replace(",", "")
                     s_pass = row["S Pass"].replace(",", "")
                     work_permit_total = row["Work Permit (Total)"].replace(",", "")
@@ -66,7 +83,7 @@ VALUES
                     total_workforce_exc_fdw = row["Total Foreign Workforce(excluding Foreign Domestic Workers) "].replace(",", "")
                     total_workforce_exc_fdw_construction = row["Total Foreign Workforce(excluding Foreign Domestic Workers & Construction) "].replace(",", "")
 
-                    data = (year,employment_pass,s_pass,work_permit_total,work_permit_fdw,work_permit_construction,other_passes,total_workforce,total_workforce_exc_fdw,total_workforce_exc_fdw_construction)
+                    data = (year,country_id,employment_pass,s_pass,work_permit_total,work_permit_fdw,work_permit_construction,other_passes,total_workforce,total_workforce_exc_fdw,total_workforce_exc_fdw_construction)
 
                     cursor.execute(sql, data)
             connection.commit()    

@@ -36,7 +36,7 @@ def create_table(connection):
             sql = """
 CREATE TABLE HappinessIndex (
     year INT NOT NULL,
-    country_id INT NOT NULL,
+    country_id INT NOT NULL FOREIGN KEY REFERENCES Country(id),
     rank INT NOT NULL,
     happiness_score DECIMAL(8,5) NOT NULL,
     gdp_per_capita DECIMAL(8,5) NOT NULL,
@@ -58,7 +58,6 @@ CREATE TABLE HappinessIndex (
 def populate_data(connection):
     try:
         country_dict = get_country(connection)
-
         sql = """
 INSERT INTO HappinessIndex 
 (year,country_id,rank,happiness_score,gdp_per_capita,family,life_expectancy,freedom,government_corruption,generosity,dystopia_residual)
